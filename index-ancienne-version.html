@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les Français dans le monde</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+body { margin:0; font-family:Arial; background:#f5f6fa; }
+header { background:#172c50; color:white; padding:18px; text-align:center; }
+h1 { font-size:22px; margin:5px; }
+#map { height:75vh; width:100%; }
+footer { padding:12px; text-align:center; color:#555; }
+</style>
+</head>
+<body>
+<header>
+<h1>🇫🇷 Les Français dans le monde</h1>
+<p>La présence française à travers le monde</p>
+</header>
+<div id="map"></div>
+<footer>Carte de démonstration – données fictives</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map').setView([20, 0], 2);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+ attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+const villes = [
+ {ville:"Londres",lat:51.507,lng:-0.128,n:12000},
+ {ville:"New York",lat:40.712,lng:-74.006,n:18000},
+ {ville:"Montréal",lat:45.501,lng:-73.567,n:25000},
+ {ville:"Tokyo",lat:35.676,lng:139.650,n:8000},
+ {ville:"Dubaï",lat:25.204,lng:55.270,n:10000},
+ {ville:"Sydney",lat:-33.868,lng:151.209,n:6000}
+];
+
+villes.forEach(v => {
+ const couleur = v.n > 15000 ? '#d71920' : '#2463a6';
+ L.circleMarker([v.lat,v.lng], {
+  radius:Math.max(7,Math.sqrt(v.n)/5),
+  color:couleur,
+  fillColor:couleur,
+  fillOpacity:0.7
+ }).addTo(map).bindPopup(
+  '<b>'+v.ville+'</b><br>'+v.n.toLocaleString('fr-FR')+' personnes (exemple fictif)'
+ );
+});
+</script>
+</body>
+</html>

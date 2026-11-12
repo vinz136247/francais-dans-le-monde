@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les Français dans le monde</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f6fa;
+}
+
+header {
+  background: #172c50;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 5px;
+}
+
+#statistiques {
+  padding: 12px;
+  text-align: center;
+  background: white;
+  color: #172c50;
+}
+
+#commandes {
+  padding: 12px;
+  background: white;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+input, button {
+  padding: 11px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+input {
+  flex: 1;
+  min-width: 180px;
+}
+
+button {
+  background: #172c50;
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+#map {
+  height: 68vh;
+  min-height: 400px;
+  width: 100%;
+}
+
+#legende {
+  background: white;
+  padding: 12px;
+  line-height: 1.9;
+  font-size: 13px;
+}
+
+.couleur {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+footer {
+  padding: 12px;
+  text-align: center;
+  color: #555;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🇫🇷 Les Français dans le monde</h1>
+  <p>Population française par commune</p>
+</header>
+
+<div id="statistiques">
+  Chargement des données...
+</div>
+
+<div id="commandes">
+  <input id="recherche" type="search" placeholder="Rechercher une commune...">
+  <button id="chercher">Rechercher</button>
+  <button id="metropole">Métropole</button>
+  <button id="outremer">Outre-mer</button>
+</div>
+
+<div id="map"></div>
+
+<div id="legende">
+  <strong>Population française par commune</strong><br>
+  <span class="couleur" style="background:#2c7bb6"></span> Moins de 500<br>
+  <span class="couleur" style="background:#abd9e9"></span> 500 à 1 999<br>
+  <span class="couleur" style="background:#ffffbf"></span> 2 000 à 9 999<br>
+  <span class="couleur" style="background:#fdae61"></span> 10 000 à 49 999<br>
+  <span class="couleur" style="background:#d7191c"></span> 50 000 et plus
+</div>
+
+<footer>
+  Source : INSEE, recensement 2023.<br>
+  Coordonnées : API officielle geo.api.gouv.fr.<br>
+  Données communales, non individuelles.
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const map = L.map('map').setView([46.6, 2.5], 6);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: ' OpenStreetMap'
+}).addTo(map);
+
+const rendu = L.canvas({ padding: 0.5 });
+
+const coucheMetropole = L.layerGroup();
+const coucheOutremer = L.layerGroup();
+
+let communes = [];
+
+function couleur(population) {
+  if (population < 500) return '#2c7bb6';
+  if (population < 2000) return '#abd9e9';
+  if (population < 10000) return '#ffffbf';
+  if (population < 50000) return '#fdae61';
+  return '#d7191c';
+}
+
+function creerMarqueur(feature) {
+  const p = feature.properties;
+  const coord = feature.geometry.coordinates;
+  const population = p.population_francaise;
+  const nom = p.nom;
+  const code = p.code;
+
+  const marqueur = L.circleMarker(
+    [coord[1], coord[0]],
+    {
+      renderer: rendu,
+      radius: Math.max(3, Math.min(9, 3 + Math.log10(population + 1))),
+      color: couleur(population),
+      fillColor: couleur(population),
+      fillOpacity: 0.75,
+      weight: 1
+    }
+  );
+
+  marqueur.bindPopup(
+    '<strong>' + nom + '</strong><br>' +
+    'Code : ' + code + '<br>' +
+    'Population française : ' +
+    population.toLocaleString('fr-FR')
+  );
+
+  return marqueur;
+}
+
+function afficherMetropole() {
+  map.removeLayer(coucheOutremer);
+  coucheMetropole.addTo(map);
+  map.setView([46.6, 2.5], 6);
+}
+
+function afficherOutremer() {
+  map.removeLayer(coucheMetropole);
+  coucheOutremer.addTo(map);
+
+  const points = communes
+    .filter(c => c.properties.code.startsWith('97'))
+    .map(c => {
+      const coord = c.geometry.coordinates;
+      return [coord[1], coord[0]];
+    });
+
+  if (points.length) {
+    map.fitBounds(points, { padding: [25, 25] });
+  }
+}
+
+fetch('data/processed/communes-france-2023.geojson')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Fichier de données introuvable');
+    }
+    return response.json();
+  })
+  .then(data => {
+    communes = data.features;
+
+    let total = 0;
+    let nombreMetro = 0;
+    let nombreOutremer = 0;
+
+    communes.forEach(feature => {
+      const p = feature.properties;
+      const population = p.population_francaise;
+
+      total += population;
+
+      const marqueur = creerMarqueur(feature);
+
+      if (p.code.startsWith('97')) {
+        coucheOutremer.addLayer(marqueur);
+        nombreOutremer++;
+      } else {
+        coucheMetropole.addLayer(marqueur);
+        nombreMetro++;
+      }
+    });
+
+    afficherMetropole();
+
+    document.getElementById('statistiques').innerHTML =
+      '<strong>' + total.toLocaleString('fr-FR') +
+      '</strong> personnes recensées dans ' +
+      communes.length.toLocaleString('fr-FR') +
+      ' communes et territoires associés.<br>' +
+      '<small>Métropole : ' + nombreMetro +
+      ' | Outre-mer : ' + nombreOutremer +
+      '</small>';
+  })
+  .catch(error => {
+    document.getElementById('statistiques').textContent =
+      'Erreur de chargement : ' + error.message;
+  });
+
+document.getElementById('metropole').onclick = afficherMetropole;
+document.getElementById('outremer').onclick = afficherOutremer;
+
+function rechercherCommune() {
+  const recherche = document.getElementById('recherche')
+    .value.trim().toLocaleLowerCase('fr');
+
+  if (!recherche) return;
+
+  const trouve = communes.find(c =>
+    c.properties.nom.toLocaleLowerCase('fr').includes(recherche) ||
+    c.properties.code === recherche
+  );
+
+  if (!trouve) {
+    alert('Commune non trouvée.');
+    return;
+  }
+
+  const code = trouve.properties.code;
+
+  if (code.startsWith('97')) {
+    map.removeLayer(coucheMetropole);
+    coucheOutremer.addTo(map);
+  } else {
+    map.removeLayer(coucheOutremer);
+    coucheMetropole.addTo(map);
+  }
+
+  const coord = trouve.geometry.coordinates;
+
+  map.setView([coord[1], coord[0]], 12);
+
+  // Popup créée via l'API DOM (textContent) pour éviter toute injection HTML (XSS)
+  const popupElement = document.createElement('div');
+  const nomElement = document.createElement('strong');
+  nomElement.textContent = trouve.properties.nom;
+  popupElement.appendChild(nomElement);
+  popupElement.appendChild(document.createElement('br'));
+  popupElement.appendChild(document.createTextNode(
+    trouve.properties.population_francaise.toLocaleString('fr-FR') + ' Français'
+  ));
+
+  L.popup()
+    .setLatLng([coord[1], coord[0]])
+    .setContent(popupElement)
+    .openOn(map);
+}
+
+document.getElementById('chercher').onclick = rechercherCommune;
+
+document.getElementById('recherche').addEventListener('keydown', e => {
+  if (e.key === 'Enter') rechercherCommune();
+});
+</script>
+
+</body>
+</html>
