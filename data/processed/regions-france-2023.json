@@ -1,0 +1,124 @@
+{
+  "source": "INSEE 2023",
+  "resultats": [
+    {
+      "codeRegion": "01",
+      "population_francaise": 361942,
+      "nombre_communes": 32,
+      "longitude": -61.5487125,
+      "latitude": 16.15470625
+    },
+    {
+      "codeRegion": "02",
+      "population_francaise": 351210,
+      "nombre_communes": 34,
+      "longitude": -61.03818823529412,
+      "latitude": 14.662185294117647
+    },
+    {
+      "codeRegion": "03",
+      "population_francaise": 186671,
+      "nombre_communes": 22,
+      "longitude": -53.04458636363636,
+      "latitude": 4.522077272727272
+    },
+    {
+      "codeRegion": "04",
+      "population_francaise": 875691,
+      "nombre_communes": 24,
+      "longitude": 55.508295833333335,
+      "latitude": -21.127325
+    },
+    {
+      "codeRegion": "11",
+      "population_francaise": 10433312,
+      "nombre_communes": 1266,
+      "longitude": 2.434698341232228,
+      "latitude": 48.76150007898894
+    },
+    {
+      "codeRegion": "24",
+      "population_francaise": 2425782,
+      "nombre_communes": 1754,
+      "longitude": 1.655906670467503,
+      "latitude": 47.58907964652224
+    },
+    {
+      "codeRegion": "27",
+      "population_francaise": 2645211,
+      "nombre_communes": 3685,
+      "longitude": 5.128588873812754,
+      "latitude": 47.23571734056988
+    },
+    {
+      "codeRegion": "28",
+      "population_francaise": 3208742,
+      "nombre_communes": 2644,
+      "longitude": 0.2089928895612708,
+      "latitude": 49.2057043494705
+    },
+    {
+      "codeRegion": "32",
+      "population_francaise": 5708645,
+      "nombre_communes": 3782,
+      "longitude": 2.7562646218931786,
+      "latitude": 49.97082744579588
+    },
+    {
+      "codeRegion": "44",
+      "population_francaise": 5142423,
+      "nombre_communes": 5115,
+      "longitude": 5.7778989442815245,
+      "latitude": 48.70514887585533
+    },
+    {
+      "codeRegion": "52",
+      "population_francaise": 3749285,
+      "nombre_communes": 1228,
+      "longitude": -0.6779811889250814,
+      "latitude": 47.56187524429967
+    },
+    {
+      "codeRegion": "53",
+      "population_francaise": 3327419,
+      "nombre_communes": 1202,
+      "longitude": -2.7976379367720465,
+      "latitude": 48.21879825291181
+    },
+    {
+      "codeRegion": "75",
+      "population_francaise": 5808900,
+      "nombre_communes": 4293,
+      "longitude": 0.18610962031213604,
+      "latitude": 45.09076070347077
+    },
+    {
+      "codeRegion": "76",
+      "population_francaise": 5699236,
+      "nombre_communes": 4446,
+      "longitude": 1.8843466711650922,
+      "latitude": 43.5961334682861
+    },
+    {
+      "codeRegion": "84",
+      "population_francaise": 7563392,
+      "nombre_communes": 4025,
+      "longitude": 4.566149664596273,
+      "latitude": 45.52809508074534
+    },
+    {
+      "codeRegion": "93",
+      "population_francaise": 4771427,
+      "nombre_communes": 946,
+      "longitude": 6.04816712473573,
+      "latitude": 43.943017653276954
+    },
+    {
+      "codeRegion": "94",
+      "population_francaise": 323002,
+      "nombre_communes": 360,
+      "longitude": 9.166096944444444,
+      "latitude": 42.25387305555556
+    }
+  ]
+}
